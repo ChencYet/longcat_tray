@@ -17,7 +17,7 @@
 
 ### 下载 EXE（无需 Python）
 
-👉 [📦  Releases 页面下载最新版](https://github.com/YOUR_USERNAME/longcat-tray/releases)
+👉 [📦 下载最新版](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatUsage.exe)
 
 下载 `LongCatUsage.exe`，放在一个文件夹里（目录里会有 `config.json`），双击运行。
 

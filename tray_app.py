@@ -88,69 +88,6 @@ config = load_config()
 
 
 # ------------------------------------------------------------------
-# WebView2 内嵌登录获取 Cookie
-# ------------------------------------------------------------------
-def acquire_cookie_via_webview():
-    try:
-        import webview
-    except ImportError:
-        logging.error("pywebview not installed")
-        return False
-
-    LOGIN_URL = "https://longcat.chat/platform/usage"
-    TARGET_COOKIE = "passport_token_key"
-    result = {}
-    event = threading.Thread(target=lambda: None)  # dummy
-
-    def check_cookies(window):
-        for _ in range(180):
-            try:
-                cookies = window.get_cookies()
-                for c in cookies:
-                    if c.get('name') == TARGET_COOKIE and c.get('value'):
-                        cookie_dict = {}
-                        for cc in cookies:
-                            domain = cc.get('domain', '')
-                            if 'longcat' in domain:
-                                name = cc.get('name', '')
-                                value = cc.get('value', '')
-                                if name:
-                                    cookie_dict[name] = value
-                        if cookie_dict:
-                            parts = [f"{k}={v}" for k, v in cookie_dict.items()]
-                            result['cookie'] = "; ".join(parts)
-                            logging.info(f"WebView2 got cookie from longcat.chat")
-                            window.destroy()
-                        return
-            except Exception as e:
-                logging.debug(f"Cookie check: {e}")
-            time.sleep(2)
-
-    def on_loaded(window):
-        threading.Thread(target=check_cookies, args=(window,), daemon=True).start()
-
-    window = webview.create_window(
-        "LongCat 登录 - 登录完成后自动获取 Cookie",
-        url=LOGIN_URL,
-        width=1000,
-        height=700,
-        on_top=True,
-    )
-
-    try:
-        webview.start(lambda: on_loaded(window), gui='edgechromium')
-    except Exception as e:
-        logging.error(f"webview.start failed: {e}")
-        return False
-
-    if result.get('cookie'):
-        config['cookie'] = result['cookie']
-        save_config(config)
-        return True
-    return False
-
-
-# ------------------------------------------------------------------
 # 打开配置文件供手动编辑
 # ------------------------------------------------------------------
 def open_config_in_notepad():
@@ -434,19 +371,6 @@ def action_reload_config(icon, item):
         show_message("重新加载失败", f"读取 config.json 失败：{e}", is_warning=True)
 
 
-def action_relogin(icon, item):
-    stop_event.set()
-    icon.stop()
-    threading.Thread(target=_relogin_and_restart, daemon=True).start()
-
-
-def _relogin_and_restart():
-    if acquire_cookie_via_webview():
-        show_message("Cookie 已更新", "重新登录成功，请手动重启程序。")
-    else:
-        show_message("登录失败", "未能获取新 Cookie。", is_warning=True)
-
-
 # ------------------------------------------------------------------
 # 主程序
 # ------------------------------------------------------------------
@@ -509,7 +433,6 @@ def build_menu():
         pystray.MenuItem("立即刷新", action_refresh_now),
         pystray.MenuItem("编辑 Cookie（记事本）", action_edit_cookie),
         pystray.MenuItem("重新加载配置", action_reload_config),
-        pystray.MenuItem("重新登录（WebView）", action_relogin),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("刷新间隔", interval_menu),
         pystray.Menu.SEPARATOR,
@@ -522,24 +445,13 @@ def main():
 
     if not config.get("cookie"):
         show_message(
-            "需要登录 LongCat",
-            "还没有配置 Cookie。\n\n"
-            "即将打开登录窗口，请在窗口内完成登录。\n"
-            "登录成功后程序会自动获取 Cookie。",
+            "需要设置 Cookie",
+            "还没有配置 Cookie，无法获取用量数据。\n\n"
+            "即将用记事本打开 config.json，请把抓包拿到的 Cookie "
+            "粘贴进 cookie 字段（引号内），保存后重新启动程序。",
         )
-        if not acquire_cookie_via_webview():
-            show_message(
-                "获取 Cookie 失败",
-                "WebView2 登录未成功。\n\n"
-                "可能原因：\n"
-                "1. 未登录就关闭了窗口\n"
-                "2. WebView2 Runtime 未安装\n\n"
-                "即将用记事本打开 config.json，请手动填入 Cookie。",
-                is_warning=True,
-            )
-            open_config_in_notepad()
-            sys.exit(0)
-        show_message("Cookie 获取成功", "登录成功，程序即将开始监控用量。")
+        open_config_in_notepad()
+        sys.exit(0)
 
     logging.info("Cookie 已就绪，启动托盘")
     initial_image = create_icon_image(0, error=True)

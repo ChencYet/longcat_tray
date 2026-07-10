@@ -28,7 +28,7 @@ _log_dir = os.path.join(os.path.expanduser("~"), ".longcat_tray")
 os.makedirs(_log_dir, exist_ok=True)
 logging.basicConfig(
     filename=os.path.join(_log_dir, "error.log"),
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     encoding="utf-8",
 )
@@ -88,68 +88,14 @@ config = load_config()
 
 
 # ------------------------------------------------------------------
-# Cookie 自动获取
+# 打开配置文件供手动编辑
 # ------------------------------------------------------------------
-def is_admin():
+def open_config_in_notepad():
     try:
-        return ctypes.windll.shell32.IsUserAnAdmin() != 0
-    except Exception:
-        return False
-
-
-def relaunch_as_admin():
-    exe = sys.executable
-    params = " ".join([f'"{a}"' for a in sys.argv])
-    ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, params, None, 1)
-    sys.exit(0)
-
-
-def fetch_browser_cookie():
-    try:
-        import browser_cookie3
-    except ImportError:
-        logging.error("browser_cookie3 not installed")
-        return ""
-
-    browsers = [
-        ("Chrome", browser_cookie3.chrome),
-        ("Edge", browser_cookie3.edge),
-    ]
-
-    for name, loader in browsers:
-        try:
-            cookies = loader(domain_name="longcat.chat")
-            cookie_list = list(cookies)
-            if cookie_list:
-                seen = set()
-                parts = []
-                for c in cookie_list:
-                    if c.name not in seen:
-                        seen.add(c.name)
-                        parts.append(f"{c.name}={c.value}")
-                cookie_str = "; ".join(parts)
-                logging.info(f"Got cookie from {name}: {len(parts)} cookies")
-                return cookie_str
-        except Exception as e:
-            logging.warning(f"Failed to read {name} cookies: {e}")
-    return ""
-
-
-def auto_acquire_cookie():
-    if config.get("cookie"):
-        return True
-    if not is_admin():
-        logging.info("No cookie, relaunching as admin to fetch from Chrome")
-        return False
-    logging.info("Admin mode, attempting to read Chrome cookies")
-    cookie_str = fetch_browser_cookie()
-    if cookie_str:
-        config["cookie"] = cookie_str
-        save_config(config)
-        logging.info("Cookie saved to config.json")
-        return True
-    logging.error("Failed to read Chrome cookies even as admin")
-    return False
+        os.startfile(CONFIG_PATH)
+    except Exception as e:
+        logging.error(f"打开配置文件失败: {e}")
+        show_message("打开失败", f"无法打开配置文件：{e}\n\n路径：{CONFIG_PATH}", is_warning=True)
 
 
 # 运行期共享状态
@@ -410,6 +356,21 @@ def action_exit(icon, item):
     icon.stop()
 
 
+def action_edit_cookie(icon, item):
+    open_config_in_notepad()
+
+
+def action_reload_config(icon, item):
+    global config
+    try:
+        config = load_config()
+        logging.info("配置已手动重新加载")
+        force_refresh_event.set()
+    except Exception as e:
+        logging.error(f"重新加载配置失败: {e}")
+        show_message("重新加载失败", f"读取 config.json 失败：{e}", is_warning=True)
+
+
 # ------------------------------------------------------------------
 # 主程序
 # ------------------------------------------------------------------
@@ -470,6 +431,8 @@ def build_menu():
         *detail_items,
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("立即刷新", action_refresh_now),
+        pystray.MenuItem("编辑 Cookie（记事本）", action_edit_cookie),
+        pystray.MenuItem("重新加载配置", action_reload_config),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("刷新间隔", interval_menu),
         pystray.Menu.SEPARATOR,
@@ -480,13 +443,15 @@ def build_menu():
 def main():
     global icon_ref
 
-    if not auto_acquire_cookie():
+    if not config.get("cookie"):
         show_message(
-            "正在获取 Cookie",
-            "首次启动需要从浏览器读取 Cookie。\n\n即将弹出 UAC 授权，请点击「是」允许。",
+            "需要设置 Cookie",
+            "还没有配置 Cookie，无法获取用量数据。\n\n"
+            "即将用记事本打开 config.json，请把抓包拿到的 Cookie "
+            "粘贴进 cookie 字段（引号内），保存后重新启动程序。",
         )
-        relaunch_as_admin()
-        return
+        open_config_in_notepad()
+        sys.exit(0)
 
     logging.info("Cookie 已就绪，启动托盘")
     initial_image = create_icon_image(0, error=True)

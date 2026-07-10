@@ -1,0 +1,6 @@
+{
+  "api_url": "https://longcat.chat/api/pay/quota/metering/token-packs/summary",
+  "cookie": "_lxsdk_cuid=19f3536ee78c8-0ab86fb612ed228-4c657b58-1fa400-19f3536ee78c8; passport_token_key=AgH6IWCxW-aeCbUpO6nrDme84roOxE-CNGY80H-l3lJC44T_JslCKSCeGJW6gLaJsEavGR-xkuVBnAAAAABQNwAAzjnflUETT8whAKk0j-N8VA71Q72OmVSqpFzc6pWwM084SnBrMq7svn-vq63KCPUu; long_cat_region_key=0; WEBDFPID=1y239w09423x5x29y15391y06534060980u6463v50z979584wv7x4x5-1783669058054-1783304220202QAKQSGQfd79fef3d01d5e9aadc18ccd4d0c95071103; utm_source_rg=AM%2519FsLsF%25444%25kPuOfT1fJuOhzhufPkzOfkP1FzOJ1F1fm1IFJFO0z17fxfzmJT0xhJhz; com.sankuai.friday.longcat.platformdocs_strategy=; _lx_utm=utm_source%3Dbing%26utm_medium%3Dorganic; com.sankuai.friday.longcat.platform_strategy=; _lxsdk_s=19f4a86c161-199-fd1-95%7C%7C73",
+  "refresh_interval_minutes": 5,
+  "low_quota_threshold_percent": 20
+}

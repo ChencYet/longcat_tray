@@ -35,33 +35,18 @@ logging.basicConfig(
 logging.info("=== 程序启动 ===")
 
 # ------------------------------------------------------------------
-# tkinter 弹窗（解决原生MessageBox卡死问题）
+# 原生弹窗（不依赖 tkinter，避免 PyInstaller 打包坑，且天然线程安全）
 # ------------------------------------------------------------------
-import tkinter as tk
-from tkinter import messagebox
-
 def show_message(title, text, is_warning=False):
-    def show():
-        try:
-            root = tk.Tk()
-            root.withdraw()
-            root.lift()
-            root.attributes('-topmost', True)
-            root.after_idle(root.attributes, '-topmost', False)
-            if is_warning:
-                messagebox.showwarning(title, text, parent=root)
-            else:
-                messagebox.showinfo(title, text, parent=root)
-            root.destroy()
-        except Exception as e:
-            print(f"弹窗显示失败: {e}")
-
-    # 确保在主线程执行
-    if threading.current_thread() is threading.main_thread():
-        show()
-    else:
-        # 从其他线程调用时，延迟一点扔到主线程
-        threading.Timer(0.05, show).start()
+    MB_OK = 0x0
+    MB_ICONINFORMATION = 0x40
+    MB_ICONWARNING = 0x30
+    MB_TOPMOST = 0x40000
+    style = MB_OK | MB_TOPMOST | (MB_ICONWARNING if is_warning else MB_ICONINFORMATION)
+    try:
+        ctypes.windll.user32.MessageBoxW(0, text, title, style)
+    except Exception as e:
+        logging.error(f"弹窗显示失败: {e}")
 
 
 # ------------------------------------------------------------------

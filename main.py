@@ -36,14 +36,14 @@ logging.basicConfig(
 logging.info("=== 程序启动 ===")
 
 
-def _handle_fetch_error(msg):
+def _handle_fetch_error(msg, force_notify=False):
     with state_lock:
         state["last_error"] = msg
     if icon_ref:
         icon_ref.icon = create_icon_image(0, error=True)
         icon_ref.title = f"LongCat 用量获取失败\n{msg}"
         icon_ref.menu = build_menu()
-        if not cookie_notify_done.is_set():
+        if force_notify or not cookie_notify_done.is_set():
             cookie_notify_done.set()
             try:
                 icon_ref.notify(msg, title="LongCat 用量监控")
@@ -51,11 +51,11 @@ def _handle_fetch_error(msg):
                 pass
 
 
-def do_refresh():
+def do_refresh(force_notify=False):
     ok, result = fetch_usage(config)
 
     if not ok:
-        _handle_fetch_error(result)
+        _handle_fetch_error(result, force_notify=force_notify)
         return False
 
     try:
@@ -65,7 +65,7 @@ def do_refresh():
         estimate = result.get("estimate", {})
     except (KeyError, TypeError, ZeroDivisionError) as e:
         logging.error(f"数据解析失败: {e}\n原始数据: {result}")
-        _handle_fetch_error(f"接口返回数据格式异常：{e}")
+        _handle_fetch_error(f"接口返回数据格式异常：{e}", force_notify=force_notify)
         return False
 
     cookie_notify_done.clear()
@@ -108,22 +108,30 @@ def _update_icon(percent_remaining, lot, estimate):
 def refresh_loop():
     while not stop_event.is_set():
         try:
-            do_refresh()
+            do_refresh(force_notify=False)
         except Exception:
             logging.critical(f"do_refresh 未捕获异常:\n{traceback.format_exc()}")
 
         elapsed = 0
+        manual_refresh = False
         while not stop_event.is_set():
             time.sleep(1)
             elapsed += 1
 
             if force_refresh_event.is_set():
                 force_refresh_event.clear()
+                manual_refresh = True
                 break
 
             interval_minutes = config.get("refresh_interval_minutes", 0)
             if interval_minutes and elapsed >= interval_minutes * 60:
                 break
+
+        if manual_refresh and not stop_event.is_set():
+            try:
+                do_refresh(force_notify=True)
+            except Exception:
+                logging.critical(f"do_refresh 未捕获异常:\n{traceback.format_exc()}")
 
 
 def main():

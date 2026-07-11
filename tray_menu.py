@@ -33,6 +33,8 @@ def action_refresh_now(icon, item):
         config.update(new_cfg)
     except Exception as e:
         logging.error(f"刷新时重载配置失败: {e}")
+    from state import cookie_notify_done
+    cookie_notify_done.clear()
     force_refresh_event.set()
 
 

@@ -9,8 +9,10 @@
 - 💬 **悬浮 Tooltip** — 鼠标悬停查看剩余量 / 已消耗 / 预计可用天数
 - 📊 **右键菜单直接看详情** — Token 余量、有效期、日均消耗、预计用尽时间、最后刷新时间
 - ⏱️ **可自定义刷新间隔** — 手动 / 1 / 5 / 15 / 30 / 60 分钟，自动保存
-- 🔔 **用量预警** — 低于阈值弹出系统通知
+- 🔔 **用量预警** — 低于阈值弹出系统通知（每次告警周期内只提示一次）
 - 🍪 **Cookie 失效通知** — 获取失败时弹出系统通知提示重新登录
+- 🚀 **开机自启** — 右键菜单一键设置
+- 🛡️ **稳定性保障** — 后台线程异常保护、配置文件容错
 
 ## 📥 快速开始
 
@@ -28,7 +30,7 @@
 git clone https://github.com/ChencYet/longcat_tray.git
 cd longcat_tray
 pip install -r requirements.txt
-python tray_app.py
+python main.py
 ```
 
 ## 🖱️ 托盘图标 & 菜单
@@ -52,6 +54,8 @@ python tray_app.py
   ○ 15 分钟
   ○ 30 分钟
   ○ 60 分钟
+------------------------------------
+✓ 开机自启
 ------------------------------------
 退出
 ```
@@ -93,7 +97,7 @@ pyinstaller LongCatUsage.spec
 
 ## 🔧 开机自启
 
-按 `Win+R`，输入 `shell:startup` 回车，把 `LongCatUsage.exe` 的快捷方式放进去即可。
+右键托盘图标 → 「开机自启」即可开启/关闭。无需管理员权限。
 
 ## 🔩 技术栈
 
@@ -106,9 +110,17 @@ pyinstaller LongCatUsage.spec
 ## 📁 文件结构
 
 ```
-longcat-tray/
-├── tray_app.py            # 主程序（单文件，全部逻辑）
+longcat_tray/
+├── main.py                # 入口，编排各模块
+├── config.py              # 配置读写 / 容错
+├── api.py                 # 接口请求 / 重试
+├── icon.py                # 图标绘制 / 缓存
+├── formatter.py           # 数据格式化
+├── tray_menu.py           # 菜单构建 / 动作处理
+├── state.py               # 共享状态 / 线程锁
+├── utils.py               # 弹窗 / 开机自启
 ├── LongCatUsage.spec      # PyInstaller 打包配置
+├── config.example.json    # 配置模板
 ├── requirements.txt       # Python 依赖
 ├── config.json            # 配置文件（运行时自动生成）
 └── .gitignore             # Git 忽略规则
@@ -123,4 +135,4 @@ longcat-tray/
 `%USERPROFILE%\.longcat_tray\error.log`
 
 **怎么卸载？**
-退出托盘程序 + 删除程序文件夹即可。如设置了开机自启，记得从 `shell:startup` 删除快捷方式。
+退出托盘程序 + 删除程序文件夹即可。如设置了开机自启，在右键菜单中关闭即可。

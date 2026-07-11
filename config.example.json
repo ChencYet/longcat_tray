@@ -1,0 +1,6 @@
+{
+  "api_url": "https://longcat.chat/api/pay/quota/metering/token-packs/summary",
+  "cookie": "在这里填入你的 Cookie",
+  "refresh_interval_minutes": 5,
+  "low_quota_threshold_percent": 20
+}

@@ -4,3 +4,4 @@ dist/
 __pycache__/
 test_cookies.py
 config.json
+config.json.bad-*.json

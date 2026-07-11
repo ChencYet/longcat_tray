@@ -38,6 +38,11 @@ def fetch_usage(cfg, max_retries=2):
                 return False, f"请求失败：{e}"
             logging.warning(f"fetch_usage 第 {attempt + 1} 次尝试失败: {e}")
             time.sleep(1.5 * (attempt + 1))
+        except Exception as e:
+            if attempt == max_retries:
+                return False, f"请求失败：{e}"
+            logging.warning(f"fetch_usage 第 {attempt + 1} 次尝试出错: {e}")
+            time.sleep(1.5 * (attempt + 1))
 
     if payload.get("code") != 0:
         return False, f"接口返回异常（Cookie 可能已失效）：{payload.get('msg')}"

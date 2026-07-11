@@ -113,6 +113,7 @@ def fetch_cookie_in_browser():
         )
         return
 
+    from state import force_refresh_event
     log_dir = os.path.join(os.path.expanduser("~"), ".longcat_tray")
 
     try:
@@ -167,9 +168,15 @@ def fetch_cookie_in_browser():
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(cfg, f, ensure_ascii=False, indent=2)
 
+            from config import load_config
+            new_cfg = load_config()
+            config.clear()
+            config.update(new_cfg)
+            force_refresh_event.set()
+
             show_message(
                 "Cookie 获取成功",
-                f"已保存到 config.json\n\n请重新启动程序或右键「立即刷新」。",
+                f"已保存并自动刷新，请查看托盘图标状态。",
             )
         else:
             show_message(

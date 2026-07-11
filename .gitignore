@@ -1,6 +1,7 @@
 build/
 build_get_cookie/
 dist/
+installer/
 *.pyc
 __pycache__/
 test_cookies.py

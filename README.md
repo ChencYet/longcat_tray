@@ -15,9 +15,20 @@
 
 ## 📥 快速开始
 
-### 下载 EXE（无需 Python）
+### 方式一：安装包（推荐）
 
-👉 [📦 下载最新版](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatUsage.exe)
+👉 [📦 下载 LongCatSetup.exe](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatSetup.exe)
+
+下载安装程序，双击运行安装向导。安装后从开始菜单或桌面快捷方式启动。
+
+- ✅ 自动创建开始菜单快捷方式
+- ✅ 支持开机自启
+- ✅ 控制面板一键卸载
+- ✅ 可选创建桌面快捷方式
+
+### 方式二：单文件 EXE
+
+👉 [📦 下载 LongCatUsage.exe](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatUsage.exe)
 
 下载 `LongCatUsage.exe`，放在一个文件夹里双击运行。
 
@@ -91,7 +102,9 @@ python main.py
 
 > ⚠️ `config.json` 里的 Cookie 相当于你的登录凭证，**不要**把这个文件夹传到公开仓库。`.gitignore` 已排除 `config.json`。
 
-## 📦 打包 EXE
+## 📦 打包
+
+### 打包单文件 EXE
 
 ```bash
 pip install pyinstaller
@@ -99,6 +112,21 @@ pyinstaller LongCatUsage.spec
 ```
 
 打包完成后在 `dist/LongCatUsage.exe` 找到可执行文件。`config.json` 需与 exe 放在同一目录。
+
+### 打包 Windows 安装程序
+
+```bash
+pip install pyinstaller
+pyinstaller LongCatUsage.spec
+```
+
+然后使用 Inno Setup 编译安装脚本：
+
+```bash
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" LongCatSetup.iss
+```
+
+打包完成后在 `installer\LongCatSetup.exe` 找到安装程序。
 
 ## 🔧 开机自启
 

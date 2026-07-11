@@ -168,7 +168,7 @@ def fetch_cookie_in_browser():
             with open(config_path, "w", encoding="utf-8") as f:
                 json.dump(cfg, f, ensure_ascii=False, indent=2)
 
-            from config import load_config
+            from config import load_config, config
             new_cfg = load_config()
             config.clear()
             config.update(new_cfg)

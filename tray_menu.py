@@ -77,26 +77,9 @@ def action_exit(icon, item):
 
 
 def action_auto_cookie(icon, item):
-    import subprocess
-    try:
-        if getattr(sys, 'frozen', False):
-            exe_dir = os.path.dirname(sys.executable)
-            cookie_exe = os.path.join(exe_dir, "GetCookie.exe")
-            if os.path.exists(cookie_exe):
-                subprocess.Popen([cookie_exe])
-            else:
-                show_message(
-                    "GetCookie.exe 不存在",
-                    f"未找到 GetCookie.exe，请确保它与 LongCatUsage.exe 在同一目录。\n\n"
-                    f"如果只有源码，请运行：python get_cookie.py",
-                    is_warning=True,
-                )
-        else:
-            script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_cookie.py")
-            subprocess.Popen([sys.executable, script_path])
-    except Exception as e:
-        logging.error(f"启动自动获取 Cookie 失败: {e}")
-        show_message("启动失败", f"无法启动：{e}", is_warning=True)
+    from utils import fetch_cookie_in_browser
+    import threading
+    threading.Thread(target=fetch_cookie_in_browser, daemon=True).start()
 
 
 def action_edit_cookie(icon, item):

@@ -15,7 +15,7 @@
 
 ## 📥 快速开始
 
-### 方式一：安装包（推荐）
+### 下载安装
 
 👉 [📦 下载 LongCatSetup.exe](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatSetup.exe)
 
@@ -26,18 +26,11 @@
 - ✅ 控制面板一键卸载
 - ✅ 可选创建桌面快捷方式
 
-### 方式二：单文件 EXE
-
-👉 [📦 下载 LongCatUsage.exe](https://github.com/ChencYet/longcat_tray/releases/latest/download/LongCatUsage.exe)
-
-下载 `LongCatUsage.exe`，放在一个文件夹里双击运行。
-
 **首次使用：**
-1. 双击运行，托盘出现灰色图标（不会弹窗打断）
+1. 从开始菜单启动
 2. 右键托盘 → 「自动获取 Cookie」
 3. 在弹出的浏览器中登录 longcat.chat
-4. 自动抓取 Cookie 并保存
-5. 右键「立即刷新」即可获取数据
+4. 自动抓取 Cookie 并自动刷新获取数据
 
 ### 从源码运行
 
@@ -105,23 +98,12 @@ python main.py
 
 ## 📦 打包
 
-### 打包单文件 EXE
-
 ```bash
 pip install pyinstaller
 pyinstaller LongCatUsage.spec
 ```
 
-打包完成后在 `dist/LongCatUsage.exe` 找到可执行文件。`config.json` 需与 exe 放在同一目录。
-
-### 打包 Windows 安装程序
-
-```bash
-pip install pyinstaller
-pyinstaller LongCatUsage.spec
-```
-
-然后使用 Inno Setup 编译安装脚本：
+然后使用 Inno Setup 编译安装脚本（需先安装 [Inno Setup](https://jrsoftware.org/isdl.php)）：
 
 ```bash
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" LongCatSetup.iss
@@ -179,4 +161,4 @@ longcat_tray/
 - 如果图标变灰，检查 Cookie 是否过期，用「自动获取 Cookie」重新获取即可
 
 **怎么卸载？**
-退出托盘程序 + 删除程序文件夹即可。如设置了开机自启，在右键菜单中关闭即可。如使用安装包安装的，在控制面板"应用和功能"中卸载。
+在控制面板"应用和功能"中卸载即可。如设置了开机自启，在右键菜单中关闭即可。

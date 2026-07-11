@@ -26,6 +26,13 @@ def open_config_in_notepad():
 
 
 def action_refresh_now(icon, item):
+    from config import load_config
+    try:
+        new_cfg = load_config()
+        config.clear()
+        config.update(new_cfg)
+    except Exception as e:
+        logging.error(f"刷新时重载配置失败: {e}")
     force_refresh_event.set()
 
 
@@ -95,18 +102,6 @@ def action_auto_cookie(icon, item):
 def action_edit_cookie(icon, item):
     open_config_in_notepad()
 
-
-def action_reload_config(icon, item):
-    from config import load_config
-    try:
-        new_cfg = load_config()
-        config.clear()
-        config.update(new_cfg)
-        logging.info("配置已手动重新加载")
-        force_refresh_event.set()
-    except Exception as e:
-        logging.error(f"重新加载配置失败: {e}")
-        show_message("重新加载失败", f"读取 config.json 失败：{e}", is_warning=True)
 
 
 def action_toggle_autostart(icon, item):
@@ -178,7 +173,6 @@ def build_menu():
         pystray.MenuItem("立即刷新", action_refresh_now),
         pystray.MenuItem("自动获取 Cookie", action_auto_cookie),
         pystray.MenuItem("编辑 Cookie（记事本）", action_edit_cookie),
-        pystray.MenuItem("重新加载配置", action_reload_config),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("刷新间隔", interval_menu),
         pystray.Menu.SEPARATOR,

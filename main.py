@@ -129,28 +129,17 @@ def refresh_loop():
 def main():
     global icon_ref
 
-    if not config.get("cookie"):
-        show_message(
-            "需要设置 Cookie",
-            "还没有配置 Cookie，无法获取用量数据。\n\n"
-            "【推荐】右键托盘图标 → 「自动获取 Cookie」，在浏览器中登录后自动抓取。\n\n"
-            "【手动方式】即将用记事本打开 config.json，按以下步骤获取 Cookie：\n"
-            "  1. 浏览器登录 longcat.chat\n"
-            "  2. 按 F12 打开开发者工具 → 选择「网络」→ 筛选「Fetch/XHR」\n"
-            "  3. 找到 POST 请求: /api/pay/quota/metering/token-packs/summary\n"
-            "  4. 点击该请求 → 「请求标头」→ 复制 Cookie 的值\n"
-            "  5. 粘贴到 config.json 的 cookie 字段（引号内）\n"
-            "  6. 保存后重新启动程序",
-        )
-        open_config_in_notepad()
-        sys.exit(0)
+    has_cookie = bool(config.get("cookie"))
+    if has_cookie:
+        logging.info("Cookie 已就绪，启动托盘")
+    else:
+        logging.info("未配置 Cookie，以空状态启动托盘")
 
-    logging.info("Cookie 已就绪，启动托盘")
     initial_image = create_icon_image(0, error=True)
     icon_ref = pystray.Icon(
         "longcat_usage",
         initial_image,
-        "LongCat 用量监控\n正在加载...",
+        "LongCat 用量监控\n正在加载...\n\n右键 → 自动获取 Cookie",
         menu=build_menu(),
     )
 

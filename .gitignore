@@ -1,4 +1,5 @@
 build/
+build_get_cookie/
 dist/
 *.pyc
 __pycache__/

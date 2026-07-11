@@ -144,7 +144,8 @@ def build_menu():
             f"刷新 {update_time}",
         ]
     elif error:
-        detail_lines = [f"获取失败: {error}"]
+        short_error = error[:50] + "..." if len(error) > 50 else error
+        detail_lines = [f"获取失败: {short_error}"]
     else:
         detail_lines = ["正在加载..."]
 

@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 import pystray
 
@@ -66,6 +67,29 @@ def is_interval_checked(minutes):
 def action_exit(icon, item):
     stop_event.set()
     icon.stop()
+
+
+def action_auto_cookie(icon, item):
+    import subprocess
+    try:
+        if getattr(sys, 'frozen', False):
+            exe_dir = os.path.dirname(sys.executable)
+            script_path = os.path.join(exe_dir, "get_cookie.py")
+            if os.path.exists(script_path):
+                subprocess.Popen([sys.executable, script_path])
+            else:
+                show_message(
+                    "脚本不存在",
+                    f"未找到 get_cookie.py\n\n"
+                    f"该功能需要从源码运行，或确保 get_cookie.py 与 exe 在同一目录。",
+                    is_warning=True,
+                )
+        else:
+            script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_cookie.py")
+            subprocess.Popen([sys.executable, script_path])
+    except Exception as e:
+        logging.error(f"启动 get_cookie.py 失败: {e}")
+        show_message("启动失败", f"无法启动自动获取脚本：{e}", is_warning=True)
 
 
 def action_edit_cookie(icon, item):
@@ -152,6 +176,7 @@ def build_menu():
         *detail_items,
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("立即刷新", action_refresh_now),
+        pystray.MenuItem("自动获取 Cookie", action_auto_cookie),
         pystray.MenuItem("编辑 Cookie（记事本）", action_edit_cookie),
         pystray.MenuItem("重新加载配置", action_reload_config),
         pystray.Menu.SEPARATOR,

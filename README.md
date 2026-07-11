@@ -69,20 +69,24 @@ python main.py
 
 ## 🍪 Cookie 配置
 
-### 首次配置
+### 方式一：自动获取（推荐）
 
-1. 双击运行 `LongCatUsage.exe`
-2. 弹出提示 → 自动用记事本打开 `config.json`
-3. 在浏览器登录 `longcat.chat` → F12 → Network → 任意请求 → 复制 Cookie 头
-4. 粘贴到 `config.json` 的 `cookie` 字段，保存
-5. 重新启动程序
+右键托盘图标 → 「自动获取 Cookie」，在弹出的浏览器窗口中手动登录 longcat.chat，脚本会自动监听网络请求并提取 Cookie 写入 `config.json`，保存后重启程序即可。
+
+### 方式二：手动填写
+
+1. 右键托盘图标 → 「编辑 Cookie（记事本）」打开 `config.json`
+2. 浏览器登录 `longcat.chat`
+3. 按 `F12` 打开开发者工具 → 选择「网络」→ 筛选「Fetch/XHR」
+4. 找到 `POST /api/pay/quota/metering/token-packs/summary`
+5. 点击该请求 → 「请求标头」→ 复制 `Cookie` 的值
+6. 粘贴到 `config.json` 的 `cookie` 字段（引号内），保存
+7. 右键托盘图标 → 「重新加载配置」
 
 ### Cookie 过期更新
 
-1. 在浏览器重新登录 `longcat.chat`
-2. 右键托盘图标 → 「编辑 Cookie（记事本）」
-3. 替换 `cookie` 字段，保存
-4. 右键托盘图标 → 「重新加载配置」
+- **自动**：右键 → 「自动获取 Cookie」重新抓取
+- **手动**：右键 → 「编辑 Cookie（记事本）」→ 替换 → 保存 → 「重新加载配置」
 
 > ⚠️ `config.json` 里的 Cookie 相当于你的登录凭证，**不要**把这个文件夹传到公开仓库。`.gitignore` 已排除 `config.json`。
 

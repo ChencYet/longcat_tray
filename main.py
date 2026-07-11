@@ -133,8 +133,14 @@ def main():
         show_message(
             "需要设置 Cookie",
             "还没有配置 Cookie，无法获取用量数据。\n\n"
-            "即将用记事本打开 config.json，请把抓包拿到的 Cookie "
-            "粘贴进 cookie 字段（引号内），保存后重新启动程序。",
+            "【推荐】右键托盘图标 → 「自动获取 Cookie」，在浏览器中登录后自动抓取。\n\n"
+            "【手动方式】即将用记事本打开 config.json，按以下步骤获取 Cookie：\n"
+            "  1. 浏览器登录 longcat.chat\n"
+            "  2. 按 F12 打开开发者工具 → 选择「网络」→ 筛选「Fetch/XHR」\n"
+            "  3. 找到 POST 请求: /api/pay/quota/metering/token-packs/summary\n"
+            "  4. 点击该请求 → 「请求标头」→ 复制 Cookie 的值\n"
+            "  5. 粘贴到 config.json 的 cookie 字段（引号内）\n"
+            "  6. 保存后重新启动程序",
         )
         open_config_in_notepad()
         sys.exit(0)

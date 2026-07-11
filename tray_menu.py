@@ -74,22 +74,22 @@ def action_auto_cookie(icon, item):
     try:
         if getattr(sys, 'frozen', False):
             exe_dir = os.path.dirname(sys.executable)
-            script_path = os.path.join(exe_dir, "get_cookie.py")
-            if os.path.exists(script_path):
-                subprocess.Popen([sys.executable, script_path])
+            cookie_exe = os.path.join(exe_dir, "GetCookie.exe")
+            if os.path.exists(cookie_exe):
+                subprocess.Popen([cookie_exe])
             else:
                 show_message(
-                    "脚本不存在",
-                    f"未找到 get_cookie.py\n\n"
-                    f"该功能需要从源码运行，或确保 get_cookie.py 与 exe 在同一目录。",
+                    "GetCookie.exe 不存在",
+                    f"未找到 GetCookie.exe，请确保它与 LongCatUsage.exe 在同一目录。\n\n"
+                    f"如果只有源码，请运行：python get_cookie.py",
                     is_warning=True,
                 )
         else:
             script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "get_cookie.py")
             subprocess.Popen([sys.executable, script_path])
     except Exception as e:
-        logging.error(f"启动 get_cookie.py 失败: {e}")
-        show_message("启动失败", f"无法启动自动获取脚本：{e}", is_warning=True)
+        logging.error(f"启动自动获取 Cookie 失败: {e}")
+        show_message("启动失败", f"无法启动：{e}", is_warning=True)
 
 
 def action_edit_cookie(icon, item):

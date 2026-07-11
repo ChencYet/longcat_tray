@@ -7,7 +7,7 @@
 
 原理：
   启动一个真实的浏览器窗口，让用户手动登录 longcat.chat，
-  脚本会自动监听网络请求，当匹配到目标接口时抓取 Cookie 并写入 config.json。
+  脚本会自动导航到用量页面触发目标接口请求，匹配后抓取 Cookie 写入 config.json。
 """
 
 import json
@@ -15,17 +15,17 @@ import sys
 import os
 
 API_URL_PATH = "/api/pay/quota/metering/token-packs/summary"
+TARGET_PAGE = "https://longcat.chat/platform/usage"
 
 BANNER = r"""
 ╔══════════════════════════════════════════════════════════════╗
 ║              LongCat Cookie 自动获取工具                     ║
 ╠══════════════════════════════════════════════════════════════╣
-║  1. 浏览器窗口会自动打开 longcat.chat                        ║
-║  2. 请在浏览器中手动登录你的 LongCat 账号                    ║
-║  3. 脚本会自动监听网络请求，匹配到目标接口后自动提取 Cookie   ║
+║  1. 浏览器窗口会自动打开                                     ║
+║  2. 请在浏览器中手动登录（如未登录）                         ║
+║  3. 导航到用量页面后自动抓取 Cookie                          ║
 ║  4. 获取成功后会自动保存并退出                               ║
 ║                                                              ║
-║  提示：登录后在页面随便点一下触发用量查询，能加快匹配速度     ║
 ║  按 Ctrl+C 可取消                                            ║
 ╚══════════════════════════════════════════════════════════════╝
 """
@@ -71,11 +71,6 @@ def run():
         input("\n按回车退出...")
         return False
 
-    try:
-        from playwright.sync_api import TimeoutError as PWTimeout
-    except ImportError:
-        PWTimeout = Exception
-
     print("[*] 正在启动浏览器...")
 
     cookie_found = [None]
@@ -99,13 +94,28 @@ def run():
 
         page.on("request", handle_request)
 
-        page.goto("https://longcat.chat", wait_until="domcontentloaded", timeout=30000)
-        print("[*] 浏览器已打开，请在页面中登录...")
-        print("[*] 登录后系统会自动跳转，识别到 Cookie 后会自动退出\n")
+        page.goto(TARGET_PAGE, wait_until="domcontentloaded", timeout=30000)
+        print(f"[*] 已打开用量页面: {TARGET_PAGE}")
+        print("[*] 如未登录请先在浏览器中登录，登录后页面会自动刷新")
+        print("[*] 脚本正在监听网络请求，获取到 Cookie 后会自动退出...\n")
 
+        login_check_interval = 15
+        elapsed = 0
         try:
             while not cookie_found[0]:
-                page.wait_for_timeout(500)
+                page.wait_for_timeout(1000)
+                elapsed += 1
+
+                if elapsed == login_check_interval:
+                    print("[!] 未检测到目标请求，可能未登录或页面未触发用量查询")
+                    print("[!] 正在重新导航到用量页面...")
+                    page.goto(TARGET_PAGE, wait_until="domcontentloaded", timeout=30000)
+                    print("[*] 已刷新页面，继续监听...\n")
+
+                if elapsed % 30 == 0 and elapsed > 0 and not cookie_found[0]:
+                    current_url = page.url
+                    print(f"[*] 已等待 {elapsed} 秒，当前页面: {current_url}")
+
         except KeyboardInterrupt:
             print("\n[*] 用户取消")
             browser.close()
@@ -115,8 +125,9 @@ def run():
 
     if cookie_found[0]:
         config_path = save_cookie_to_config(cookie_found[0])
-        print(f"[✓] Cookie 已保存到: {config_path}")
-        print("[*] 请重新启动 LongCat 用量监控程序")
+        print(f"\n[✓] Cookie 已保存到: {config_path}")
+        print("[✓] 请关闭浏览器窗口（如未自动关闭）")
+        print("[*] 现在可以重新启动 LongCat 用量监控程序")
         return True
     else:
         print("[✗] 未获取到 Cookie")

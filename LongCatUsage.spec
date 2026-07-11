@@ -4,7 +4,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('get_cookie.py', '.')],
+    datas=[],
     hiddenimports=['pystray._win32', 'PIL._tkinter_finder'],
     hookspath=[],
     hooksconfig={},
